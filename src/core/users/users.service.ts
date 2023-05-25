@@ -5,10 +5,12 @@ import { RegistrationUserDto } from 'src/auth/dto';
 import { ChangeUsernameDto } from './dto';
 import { User } from './users.model';
 import { AuthService } from 'src/auth/auth.service';
+import { Repository } from 'sequelize-typescript';
+import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class UserService {
-   constructor(@InjectModel(User) private UserRepository: typeof User) {}
+   constructor(@InjectModel(User) private UserRepository: Repository<User>) {}
 
    async createUser(dto: RegistrationUserDto): Promise<User> {
       return await this.UserRepository.create(dto);
@@ -65,5 +67,11 @@ export class UserService {
          { where: { id: dto.id } }
       );
       return true;
+   }
+
+   async prisma() {
+      const client = new PrismaClient();
+      const res = await client.user.findMany({ where: { id: 1 } });
+      console.log(res);
    }
 }

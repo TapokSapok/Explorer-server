@@ -1,6 +1,10 @@
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from './../user/user.service';
-import { AuthorizeUserDto, RegistrationUserDto } from './dto/index';
+import { UserService } from '../core/users/users.service';
+import {
+   AuthorizeUserDto,
+   RegistrationUserDto,
+   UpdateUserDto,
+} from './dto/index';
 import {
    forwardRef,
    HttpException,
@@ -9,8 +13,12 @@ import {
    Injectable,
    UnauthorizedException,
 } from '@nestjs/common';
-import { User } from 'src/user/user.model';
+import { User } from 'src/core/users/users.model';
 import * as bcrypt from 'bcryptjs';
+import {
+   BadRequestException,
+   NotFoundException,
+} from '@nestjs/common/exceptions';
 
 @Injectable()
 export class AuthService {
@@ -25,14 +33,26 @@ export class AuthService {
    }
 
    async registration(dto: RegistrationUserDto) {
-      console.log(dto);
-      const candidate = await this.UserService.getUserByEmail(dto.email);
-      if (candidate) {
+      const candidateEmail = await this.UserService.findOne({
+         where: { email: dto.email },
+      });
+      if (candidateEmail) {
          throw new HttpException(
-            'Пользователь с такой почтой уже есть!',
+            'Пользователь с такой почтой уже есть.',
             HttpStatus.BAD_REQUEST
          );
       }
+
+      const candidateId = await this.UserService.findOne({
+         where: { username: dto.username },
+      });
+      if (candidateId) {
+         throw new HttpException(
+            'Пользователь с таким ником уже есть.',
+            HttpStatus.BAD_REQUEST
+         );
+      }
+
       const hashPassword = await bcrypt.hash(dto.password, 5);
       const user = await this.UserService.createUser({
          ...dto,
@@ -40,6 +60,19 @@ export class AuthService {
       });
       return this.generateToken(user);
    }
+
+   async getMe(dto: UpdateUserDto) {
+      const user = await this.UserService.findOne({
+         where: { email: dto.email },
+      });
+      if (!user) {
+         throw new BadRequestException('Пользователя не существует');
+      }
+
+      return this.generateToken(user);
+   }
+
+   //=============================
 
    async generateToken(user: User) {
       const payload = {
@@ -61,9 +94,9 @@ export class AuthService {
    private async validateUser(dto: AuthorizeUserDto) {
       const user = await this.UserService.getUserByEmail(dto.email);
       if (!user)
-         throw new UnauthorizedException({ message: 'Неккоректная почта' });
+         throw new UnauthorizedException({ message: 'Некорректная почта' });
       const passwordEquals = await bcrypt.compare(dto.password, user.password);
       if (user && passwordEquals) return user;
-      throw new UnauthorizedException({ message: 'Неккоректный пароль' });
+      throw new UnauthorizedException({ message: 'Некорректный пароль' });
    }
 }

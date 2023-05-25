@@ -2,6 +2,8 @@ import { UserService } from './users.service';
 import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { RegistrationUserDto } from 'src/auth/dto';
 import { BalanceDifferenceDto, ChangeRoleDto, ChangeUsernameDto } from './dto';
+import { UsePipes } from '@nestjs/common/decorators';
+import { ValidationPipe } from '@nestjs/common/pipes';
 
 @Controller('user')
 export class UserController {
