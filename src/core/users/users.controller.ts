@@ -1,46 +1,92 @@
 import { UserService } from './users.service';
+import { BotsRepository } from './../bots/repository/bots.repository';
+import { CreateBotDto } from './../bots/dto/index';
+import { JwtAuthGuard } from './../../auth/jwt-auth.guard';
+import { InjectModel } from '@nestjs/sequelize';
+import { UsersRepository } from './repository/users.repository';
 import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { RegistrationUserDto } from 'src/auth/dto';
-import { BalanceDifferenceDto, ChangeRoleDto, ChangeUsernameDto } from './dto';
-import { UsePipes } from '@nestjs/common/decorators';
+import {
+   BalanceDifferenceDto,
+   BuyBotDto,
+   ChangeRoleDto,
+   ChangeUsernameDto,
+   UserRequestDto,
+} from './dto';
+import { Header, Req, UseGuards, UsePipes } from '@nestjs/common/decorators';
 import { ValidationPipe } from '@nestjs/common/pipes';
+import { Roles } from 'src/auth/role-auth.decorator';
+import { RoleGuard } from 'src/auth/roles.guard';
+import { User } from '@prisma/client';
+import { OperationsRepository } from '../operations/repository/operations.repository';
 
 @Controller('user')
 export class UserController {
-   constructor(private UserService: UserService) {}
+   constructor(
+      private userRepository: UsersRepository,
+      private userService: UserService,
+      private operationsRepository: OperationsRepository
+   ) {}
 
    @Post()
    create(@Body() dto: RegistrationUserDto) {
-      return this.UserService.createUser(dto);
+      return this.userRepository.createUser(dto);
    }
+
+   @Post('buy-bot')
+   @UseGuards(JwtAuthGuard)
+   buyBot(@Body() dto: BuyBotDto, @Req() req: UserRequestDto) {
+      const user = req.user;
+      return this.userService.buyBot(dto, user);
+   }
+
+   @Get('operations')
+   @UseGuards(JwtAuthGuard)
+   getOperations(@Req() req: UserRequestDto) {
+      const user = req.user;
+      return this.operationsRepository.userOperations(user.id);
+   }
+
+   // ADMIN ROLE
 
    @Get()
-   getAll() {
-      return this.UserService.getUsers();
-   }
-
-   @Get(':id')
-   getById(@Param('id') id: number) {
-      return this.UserService.getUserById(id);
+   @Roles('ADMIN')
+   @UseGuards(RoleGuard)
+   getUsers() {
+      return this.userRepository.getUsers();
    }
 
    @Put('change-username')
+   @Roles('ADMIN')
+   @UseGuards(RoleGuard)
    changeUsername(@Body() dto: ChangeUsernameDto) {
-      return this.UserService.changeUsername(dto);
+      return this.userRepository.changeUsername(dto);
    }
 
    @Put('change-role')
+   @Roles('ADMIN')
+   @UseGuards(RoleGuard)
    changeRole(@Body() dto: ChangeRoleDto) {
-      return this.UserService.changeRole(dto);
+      return this.userRepository.changeRole(dto);
    }
 
    @Put('give-balance')
+   @Roles('ADMIN')
+   @UseGuards(RoleGuard)
    giveBalance(@Body() dto: BalanceDifferenceDto) {
-      return this.UserService.giveBalance(dto);
+      return this.userRepository.giveBalance(dto);
    }
 
    @Put('take-balance')
+   @Roles('ADMIN')
+   @UseGuards(RoleGuard)
    takeBalance(@Body() dto: BalanceDifferenceDto) {
-      return this.UserService.takeBalance(dto);
+      return this.userRepository.takeBalance(dto);
+   }
+
+   // не трогать, все сломается
+   @Get(':id')
+   getById(@Param('id') id: number) {
+      return this.userRepository.getUser({ where: { id } });
    }
 }

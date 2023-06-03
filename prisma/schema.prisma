@@ -15,10 +15,25 @@ model User {
   balance Int? @default(0)
   role String? @default("USER")
   bots Bot[]
+  operations Operation[]
+}
+
+model Operation {
+  id Int @id @default(autoincrement()) 
+  user User @relation(fields: [userId], references: [id])
+  userId Int 
+  amount Int 
+  type String
+  date String 
 }
 
 model Bot {
   id Int @id @default(autoincrement()) 
   user User @relation(fields: [userId], references: [id])
   userId Int
+  isPremium Boolean
+  username String
+  server String
+  status String? @default("offline")
+  endDate String
 }

@@ -1,77 +1,57 @@
-import { BalanceDifferenceDto, ChangeRoleDto } from './dto/index';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
-import { RegistrationUserDto } from 'src/auth/dto';
-import { ChangeUsernameDto } from './dto';
-import { User } from './users.model';
+import { JwtService } from '@nestjs/jwt';
+import { BotsRepository } from './../bots/repository/bots.repository';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { CreateBotDto } from '../bots/dto';
+import { User } from '@prisma/client';
+import { UsersRepository } from './repository/users.repository';
+import { BuyBotDto } from './dto';
 import { AuthService } from 'src/auth/auth.service';
-import { Repository } from 'sequelize-typescript';
-import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class UserService {
-   constructor(@InjectModel(User) private UserRepository: Repository<User>) {}
+   constructor(
+      private botsRepository: BotsRepository,
+      private usersRepository: UsersRepository,
+      private authService: AuthService
+   ) {}
 
-   async createUser(dto: RegistrationUserDto): Promise<User> {
-      return await this.UserRepository.create(dto);
-   }
+   async buyBot(dto: BuyBotDto, user: User) {
+      const DbUser = await this.usersRepository.getUser({
+         where: { id: Number(user.id) },
+      });
 
-   async getUsers(): Promise<User[]> {
-      return await this.UserRepository.findAll();
-   }
+      let botPrice: number;
+      if (dto.isPremium) {
+         botPrice = dto.days * Number(process.env.PREMIUM_BOT_PRICE_PER_DAY);
+      } else {
+         botPrice = dto.days * Number(process.env.CLASSIC_BOT_PRICE_PER_DAY);
+      }
 
-   async getUserById(id: number): Promise<User> {
-      return await this.UserRepository.findByPk(id);
-   }
+      if (DbUser.balance < botPrice) {
+         throw new HttpException(
+            'Не достаточно денег на балансе',
+            HttpStatus.PAYMENT_REQUIRED
+         );
+      }
 
-   async getUserByEmail(email: string): Promise<User> {
-      return await this.UserRepository.findOne({ where: { email: email } });
-   }
+      const currentDate = new Date();
+      const botEndDate = new Date(
+         new Date().setDate(currentDate.getDate() + dto.days)
+      ).toISOString();
 
-   async findOne(filter: {
-      where: { id?: number; username?: string; email?: string };
-   }): Promise<User> {
-      return this.UserRepository.findOne({ ...filter });
-   }
+      const bot = await this.botsRepository.createBot({
+         isPremium: dto.isPremium,
+         username: dto.username,
+         server: dto.server,
+         userId: user.id,
+         endDate: String(botEndDate),
+      });
 
-   // Divider
+      const changedUser = await this.usersRepository.takeBalance({
+         id: user.id,
+         balanceDifference: botPrice,
+      });
 
-   async changeUsername(dto: ChangeUsernameDto) {
-      await this.UserRepository.update(
-         { username: dto.username },
-         { where: { id: dto.id } }
-      );
-      return true;
-   }
-
-   async changeRole(dto: ChangeRoleDto) {
-      await this.UserRepository.update(
-         { role: dto.role },
-         { where: { id: dto.id } }
-      );
-   }
-
-   async giveBalance(dto: BalanceDifferenceDto) {
-      const user = await this.getUserById(dto.id);
-      await this.UserRepository.update(
-         { balance: user.balance + dto.balanceDifference },
-         { where: { id: dto.id } }
-      );
-      return true;
-   }
-
-   async takeBalance(dto: BalanceDifferenceDto) {
-      const user = await this.getUserById(dto.id);
-      await this.UserRepository.update(
-         { balance: user.balance - dto.balanceDifference },
-         { where: { id: dto.id } }
-      );
-      return true;
-   }
-
-   async prisma() {
-      const client = new PrismaClient();
-      const res = await client.user.findMany({ where: { id: 1 } });
-      console.log(res);
+      return await this.authService.generateToken(changedUser);
    }
 }

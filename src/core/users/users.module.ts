@@ -1,18 +1,22 @@
-import { Bot } from '../bots/bots.model';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { Module, forwardRef } from '@nestjs/common';
-import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthModule } from 'src/auth/auth.module';
 import { UserController } from './users.controller';
-import { User } from './users.model';
+import { UsersRepository } from './repository/users.repository';
+import { PrismaModule } from 'src/prisma/prisma.module';
+import { BotsRepository } from '../bots/repository/bots.repository';
 import { UserService } from './users.service';
+import { OperationsRepository } from '../operations/repository/operations.repository';
 
 @Module({
+   imports: [forwardRef(() => AuthModule), PrismaModule],
    controllers: [UserController],
-   providers: [UserService],
-   imports: [
-      forwardRef(() => AuthModule),
-      SequelizeModule.forFeature([User, Bot]),
+   providers: [
+      OperationsRepository,
+      UsersRepository,
+      BotsRepository,
+      UserService,
    ],
-   exports: [UserService],
+   exports: [UsersRepository],
 })
 export class UserModule {}

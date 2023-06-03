@@ -1,5 +1,5 @@
+import { UsersRepository } from './../core/users/repository/users.repository';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from '../core/users/users.service';
 import {
    AuthorizeUserDto,
    RegistrationUserDto,
@@ -13,18 +13,18 @@ import {
    Injectable,
    UnauthorizedException,
 } from '@nestjs/common';
-import { User } from 'src/core/users/users.model';
 import * as bcrypt from 'bcryptjs';
 import {
    BadRequestException,
    NotFoundException,
 } from '@nestjs/common/exceptions';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
    constructor(
       private JwtService: JwtService,
-      private UserService: UserService
+      private usersRepository: UsersRepository
    ) {}
 
    async authorize(dto: AuthorizeUserDto) {
@@ -33,7 +33,7 @@ export class AuthService {
    }
 
    async registration(dto: RegistrationUserDto) {
-      const candidateEmail = await this.UserService.findOne({
+      const candidateEmail = await this.usersRepository.getUser({
          where: { email: dto.email },
       });
       if (candidateEmail) {
@@ -42,8 +42,7 @@ export class AuthService {
             HttpStatus.BAD_REQUEST
          );
       }
-
-      const candidateId = await this.UserService.findOne({
+      const candidateId = await this.usersRepository.getUser({
          where: { username: dto.username },
       });
       if (candidateId) {
@@ -52,9 +51,8 @@ export class AuthService {
             HttpStatus.BAD_REQUEST
          );
       }
-
       const hashPassword = await bcrypt.hash(dto.password, 5);
-      const user = await this.UserService.createUser({
+      const user = await this.usersRepository.createUser({
          ...dto,
          password: hashPassword,
       });
@@ -62,13 +60,12 @@ export class AuthService {
    }
 
    async getMe(dto: UpdateUserDto) {
-      const user = await this.UserService.findOne({
+      const user = await this.usersRepository.getUser({
          where: { email: dto.email },
       });
       if (!user) {
          throw new BadRequestException('Пользователя не существует');
       }
-
       return this.generateToken(user);
    }
 
@@ -92,11 +89,15 @@ export class AuthService {
    }
 
    private async validateUser(dto: AuthorizeUserDto) {
-      const user = await this.UserService.getUserByEmail(dto.email);
+      const user = await this.usersRepository.getUser({
+         where: { email: dto.email },
+      });
       if (!user)
-         throw new UnauthorizedException({ message: 'Некорректная почта' });
+         throw new UnauthorizedException({
+            message: 'Пользователя с такой почтой не существует',
+         });
       const passwordEquals = await bcrypt.compare(dto.password, user.password);
       if (user && passwordEquals) return user;
-      throw new UnauthorizedException({ message: 'Некорректный пароль' });
+      throw new UnauthorizedException({ message: 'Неверный пароль' });
    }
 }
