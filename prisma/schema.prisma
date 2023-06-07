@@ -37,3 +37,4 @@ model Bot {
   status String? @default("offline")
   endDate String
 }
+

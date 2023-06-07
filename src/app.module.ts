@@ -7,7 +7,6 @@ import { BotsModule } from './core/bots/bots.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriverConfig } from '@nestjs/apollo';
 import { PrismaModule } from './prisma/prisma.module';
-import { BotsGateway } from './core/bots/bots.gateway';
 import { OperationsModule } from './core/operations/operations.module';
 
 @Module({
@@ -19,6 +18,5 @@ import { OperationsModule } from './core/operations/operations.module';
       PrismaModule,
       OperationsModule,
    ],
-   controllers: [],
 })
 export class AppModule {}

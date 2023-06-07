@@ -6,6 +6,7 @@ import { User } from '@prisma/client';
 import { UsersRepository } from './repository/users.repository';
 import { BuyBotDto } from './dto';
 import { AuthService } from 'src/auth/auth.service';
+import { ForbiddenError } from '@nestjs/apollo';
 
 @Injectable()
 export class UserService {
@@ -14,6 +15,20 @@ export class UserService {
       private usersRepository: UsersRepository,
       private authService: AuthService
    ) {}
+
+   async botAuth(user: User, botId: number) {
+      // const DbUser = await this.usersRepository.getUser({
+      //    where: { id: Number(user.id) },
+      // });
+      // const userBots = await this.botsRepository.getUserBots(user.id);
+      // const isContainsBot = userBots.some((bot) => bot.id === botId);
+      // if (!isContainsBot) {
+      //    throw new HttpException(
+      //       { message: 'Ты не владеешь этим ботом' },
+      //       HttpStatus.FORBIDDEN
+      //    );
+      // }
+   }
 
    async buyBot(dto: BuyBotDto, user: User) {
       const DbUser = await this.usersRepository.getUser({

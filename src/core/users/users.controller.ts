@@ -24,6 +24,7 @@ import { OperationsRepository } from '../operations/repository/operations.reposi
 export class UserController {
    constructor(
       private userRepository: UsersRepository,
+      private botsRepository: BotsRepository,
       private userService: UserService,
       private operationsRepository: OperationsRepository
    ) {}
@@ -32,6 +33,13 @@ export class UserController {
    create(@Body() dto: RegistrationUserDto) {
       return this.userRepository.createUser(dto);
    }
+
+   // @Post('bot-auth')
+   // @UseGuards(JwtAuthGuard)
+   // botAuth(@Body() { botId }: { botId: number }, @Req() req: UserRequestDto) {
+   //    const user = req.user;
+   //    return this.userService.botAuth(user, botId);
+   // }
 
    @Post('buy-bot')
    @UseGuards(JwtAuthGuard)
@@ -45,6 +53,13 @@ export class UserController {
    getOperations(@Req() req: UserRequestDto) {
       const user = req.user;
       return this.operationsRepository.userOperations(user.id);
+   }
+
+   @Get('my-bots')
+   @UseGuards(JwtAuthGuard)
+   myBots(@Req() req: UserRequestDto) {
+      const user = req.user;
+      return this.botsRepository.getUserBots(user.id);
    }
 
    // ADMIN ROLE
@@ -85,8 +100,8 @@ export class UserController {
    }
 
    // не трогать, все сломается
-   @Get(':id')
-   getById(@Param('id') id: number) {
-      return this.userRepository.getUser({ where: { id } });
-   }
+   // @Get(':id')
+   // getById(@Param('id') id: number) {
+   //    return this.userRepository.getUser({ where: { id } });
+   // }
 }
