@@ -1,31 +1,21 @@
-import { UserService } from './users.service';
-import { BotsRepository } from './../bots/repository/bots.repository';
-import { CreateBotDto } from './../bots/dto/index';
-import { JwtAuthGuard } from './../../auth/jwt-auth.guard';
-import { InjectModel } from '@nestjs/sequelize';
 import { UsersRepository } from './repository/users.repository';
 import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
-import { RegistrationUserDto } from 'src/auth/dto';
-import {
-   BalanceDifferenceDto,
-   BuyBotDto,
-   ChangeRoleDto,
-   ChangeUsernameDto,
-   UserRequestDto,
-} from './dto';
 import { Header, Req, UseGuards, UsePipes } from '@nestjs/common/decorators';
-import { ValidationPipe } from '@nestjs/common/pipes';
 import { Roles } from 'src/auth/role-auth.decorator';
 import { RoleGuard } from 'src/auth/roles.guard';
-import { User } from '@prisma/client';
 import { OperationsRepository } from '../operations/repository/operations.repository';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { UserRequestDto } from './dto/user-request.dto';
+import { ChangeUsernameDto } from './dto/change-username.dto';
+import { ChangeRoleDto } from './dto/change-role.dto';
+import { BalanceDifferenceDto } from './dto/balance-difference.dto';
+import { RegistrationUserDto } from 'src/auth/dto/registration-user.dto';
+import { BotsService } from 'src/bots/bots.service';
 
 @Controller('user')
 export class UserController {
    constructor(
       private userRepository: UsersRepository,
-      private botsRepository: BotsRepository,
-      private userService: UserService,
       private operationsRepository: OperationsRepository
    ) {}
 
@@ -34,32 +24,11 @@ export class UserController {
       return this.userRepository.createUser(dto);
    }
 
-   // @Post('bot-auth')
-   // @UseGuards(JwtAuthGuard)
-   // botAuth(@Body() { botId }: { botId: number }, @Req() req: UserRequestDto) {
-   //    const user = req.user;
-   //    return this.userService.botAuth(user, botId);
-   // }
-
-   @Post('buy-bot')
-   @UseGuards(JwtAuthGuard)
-   buyBot(@Body() dto: BuyBotDto, @Req() req: UserRequestDto) {
-      const user = req.user;
-      return this.userService.buyBot(dto, user);
-   }
-
    @Get('operations')
    @UseGuards(JwtAuthGuard)
    getOperations(@Req() req: UserRequestDto) {
       const user = req.user;
       return this.operationsRepository.userOperations(user.id);
-   }
-
-   @Get('my-bots')
-   @UseGuards(JwtAuthGuard)
-   myBots(@Req() req: UserRequestDto) {
-      const user = req.user;
-      return this.botsRepository.getUserBots(user.id);
    }
 
    // ADMIN ROLE

@@ -7,6 +7,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { BotsRepository } from '../bots/repository/bots.repository';
 import { UserService } from './users.service';
 import { OperationsRepository } from '../operations/repository/operations.repository';
+import { BotsService } from 'src/bots/bots.service';
 
 @Module({
    imports: [forwardRef(() => AuthModule), PrismaModule],
@@ -16,6 +17,7 @@ import { OperationsRepository } from '../operations/repository/operations.reposi
       UsersRepository,
       BotsRepository,
       UserService,
+      BotsService,
    ],
    exports: [UsersRepository],
 })

@@ -1,10 +1,5 @@
-import { UsersRepository } from './../core/users/repository/users.repository';
 import { JwtService } from '@nestjs/jwt';
-import {
-   AuthorizeUserDto,
-   RegistrationUserDto,
-   UpdateUserDto,
-} from './dto/index';
+
 import {
    forwardRef,
    HttpException,
@@ -19,6 +14,10 @@ import {
    NotFoundException,
 } from '@nestjs/common/exceptions';
 import { User } from '@prisma/client';
+import { UsersRepository } from 'src/users/repository/users.repository';
+import { AuthorizeUserDto } from './dto/authorize-user.dto';
+import { RegistrationUserDto } from './dto/registration-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -61,7 +60,7 @@ export class AuthService {
 
    async getMe(dto: UpdateUserDto) {
       const user = await this.usersRepository.getUser({
-         where: { email: dto.email },
+         where: { email: dto.email, username: dto.username },
       });
       if (!user) {
          throw new BadRequestException('Пользователя не существует');

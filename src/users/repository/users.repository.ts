@@ -1,11 +1,9 @@
-import {
-   BalanceDifferenceDto,
-   ChangeRoleDto,
-   ChangeUsernameDto,
-} from './../dto/index';
-import { RegistrationUserDto } from 'src/auth/dto';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ChangeUsernameDto } from '../dto/change-username.dto';
+import { ChangeRoleDto } from '../dto/change-role.dto';
+import { BalanceDifferenceDto } from '../dto/balance-difference.dto';
+import { RegistrationUserDto } from 'src/auth/dto/registration-user.dto';
 
 @Injectable()
 export class UsersRepository {

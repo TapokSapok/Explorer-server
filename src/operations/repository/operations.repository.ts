@@ -1,5 +1,4 @@
 import { OperationsModule } from './../operations.module';
-import { RegistrationUserDto } from 'src/auth/dto';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 

@@ -1,12 +1,11 @@
 import { ValidationPipe } from '@nestjs/common/pipes';
-import {
-   AuthorizeUserDto,
-   RegistrationUserDto,
-   UpdateUserDto,
-} from './dto/index';
+
 import { AuthService } from './auth.service';
 import { Controller } from '@nestjs/common';
 import { Body, Get, Post, UsePipes } from '@nestjs/common/decorators';
+import { AuthorizeUserDto } from './dto/authorize-user.dto';
+import { RegistrationUserDto } from './dto/registration-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('auth')
 export class AuthController {

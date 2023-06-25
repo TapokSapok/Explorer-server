@@ -10,12 +10,3 @@ export class RegistrationUserDto {
    @MinLength(6, { message: 'Пароль должен быть длиннее 6 символов.' })
    readonly password: string;
 }
-
-export class AuthorizeUserDto {
-   readonly email: string;
-   readonly password: string;
-}
-
-export class UpdateUserDto {
-   readonly email: string;
-}
