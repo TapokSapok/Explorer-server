@@ -4,6 +4,7 @@ import { ChangeUsernameDto } from '../dto/change-username.dto';
 import { ChangeRoleDto } from '../dto/change-role.dto';
 import { BalanceDifferenceDto } from '../dto/balance-difference.dto';
 import { RegistrationUserDto } from 'src/auth/dto/registration-user.dto';
+import { GetUsersDto } from 'src/admins/dto/get-users.dto';
 
 @Injectable()
 export class UsersRepository {
@@ -15,8 +16,18 @@ export class UsersRepository {
       });
    }
 
-   async getUsers() {
-      return this.prisma.user.findMany();
+   async getUsers(dto: GetUsersDto) {
+      return this.prisma.user.findMany({
+         where: {
+            username: {
+               contains: dto.username,
+            },
+            email: {
+               contains: dto.email,
+            },
+         },
+         take: Number(dto.limit),
+      });
    }
 
    async getUser(filter: {

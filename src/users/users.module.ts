@@ -5,18 +5,16 @@ import { UserController } from './users.controller';
 import { UsersRepository } from './repository/users.repository';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { BotsRepository } from '../bots/repository/bots.repository';
-import { UserService } from './users.service';
-import { OperationsRepository } from '../operations/repository/operations.repository';
 import { BotsService } from 'src/bots/bots.service';
+import { PaymentsRepository } from 'src/payments/payments/payments.repository';
 
 @Module({
    imports: [forwardRef(() => AuthModule), PrismaModule],
    controllers: [UserController],
    providers: [
-      OperationsRepository,
+      PaymentsRepository,
       UsersRepository,
       BotsRepository,
-      UserService,
       BotsService,
    ],
    exports: [UsersRepository],

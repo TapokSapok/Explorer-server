@@ -3,7 +3,6 @@ import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { Header, Req, UseGuards, UsePipes } from '@nestjs/common/decorators';
 import { Roles } from 'src/auth/role-auth.decorator';
 import { RoleGuard } from 'src/auth/roles.guard';
-import { OperationsRepository } from '../operations/repository/operations.repository';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { UserRequestDto } from './dto/user-request.dto';
 import { ChangeUsernameDto } from './dto/change-username.dto';
@@ -11,12 +10,13 @@ import { ChangeRoleDto } from './dto/change-role.dto';
 import { BalanceDifferenceDto } from './dto/balance-difference.dto';
 import { RegistrationUserDto } from 'src/auth/dto/registration-user.dto';
 import { BotsService } from 'src/bots/bots.service';
+import { PaymentsRepository } from 'src/payments/payments/payments.repository';
 
 @Controller('user')
 export class UserController {
    constructor(
       private userRepository: UsersRepository,
-      private operationsRepository: OperationsRepository
+      private paymentsRepository: PaymentsRepository
    ) {}
 
    @Post()
@@ -28,44 +28,7 @@ export class UserController {
    @UseGuards(JwtAuthGuard)
    getOperations(@Req() req: UserRequestDto) {
       const user = req.user;
-      return this.operationsRepository.userOperations(user.id);
-   }
-
-   // ADMIN ROLE
-
-   @Get()
-   @Roles('ADMIN')
-   @UseGuards(RoleGuard)
-   getUsers() {
-      return this.userRepository.getUsers();
-   }
-
-   @Put('change-username')
-   @Roles('ADMIN')
-   @UseGuards(RoleGuard)
-   changeUsername(@Body() dto: ChangeUsernameDto) {
-      return this.userRepository.changeUsername(dto);
-   }
-
-   @Put('change-role')
-   @Roles('ADMIN')
-   @UseGuards(RoleGuard)
-   changeRole(@Body() dto: ChangeRoleDto) {
-      return this.userRepository.changeRole(dto);
-   }
-
-   @Put('give-balance')
-   @Roles('ADMIN')
-   @UseGuards(RoleGuard)
-   giveBalance(@Body() dto: BalanceDifferenceDto) {
-      return this.userRepository.giveBalance(dto);
-   }
-
-   @Put('take-balance')
-   @Roles('ADMIN')
-   @UseGuards(RoleGuard)
-   takeBalance(@Body() dto: BalanceDifferenceDto) {
-      return this.userRepository.takeBalance(dto);
+      return this.paymentsRepository.userOperations(user.id);
    }
 
    // не трогать, все сломается

@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriverConfig } from '@nestjs/apollo';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './users/users.module';
 import { BotsModule } from './bots/bots.module';
-import { OperationsModule } from './operations/operations.module';
+import { PartnersModule } from './partners/partners.module';
+import { AdminsModule } from './admins/admins.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
    imports: [
@@ -16,7 +15,9 @@ import { OperationsModule } from './operations/operations.module';
       UserModule,
       BotsModule,
       PrismaModule,
-      OperationsModule,
+      PaymentsModule,
+      PartnersModule,
+      AdminsModule,
    ],
 })
 export class AppModule {}

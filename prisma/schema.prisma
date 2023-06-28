@@ -15,16 +15,20 @@ model User {
   balance Int? @default(0)
   role String? @default("USER")
   bots Bot[]
-  operations Operation[]
+  payments Payment[]
+  partner Partner? 
+  promocodeActivations PromocodeActivation[]
+  createdAt DateTime @default(now())
 }
 
-model Operation {
+model Payment {
   id Int @id @default(autoincrement()) 
   user User @relation(fields: [userId], references: [id])
   userId Int 
   amount Int 
   type String
   date String 
+  createdAt DateTime @default(now())
 }
 
 model Bot {
@@ -36,5 +40,44 @@ model Bot {
   server String
   status String? @default("offline")
   endDate String
+  createdAt DateTime @default(now())
 }
 
+model Partner {
+  id Int @id @default(autoincrement())
+  user User @relation(fields: [userId], references: [id]) 
+  userId Int @unique
+  income Int? @default(0)
+  activations Int? @default(0)
+  links PartnerLink[]
+  promocodes Promocode[]
+  createdAt DateTime @default(now())
+}
+
+model PartnerLink {
+  id Int @id @default(autoincrement())
+  partner Partner @relation(fields: [partnerId], references: [id]) 
+  partnerId Int 
+  link String
+  service String
+}
+
+model Promocode {
+  id Int @id @default(autoincrement())
+  partner Partner @relation(fields: [partnerId], references: [id]) 
+  partnerId Int 
+  type String 
+  value Int
+  code String
+  activations PromocodeActivation[]
+  createdAt DateTime @default(now())
+}
+
+model PromocodeActivation {
+  id Int @id @default(autoincrement())
+  promocode Promocode @relation(fields: [promocodeId], references: [id]) 
+  promocodeId Int 
+  user User @relation(fields: [userId], references: [id]) 
+  userId Int
+  createdAt DateTime @default(now())
+}
