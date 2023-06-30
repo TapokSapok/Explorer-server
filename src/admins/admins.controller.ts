@@ -4,6 +4,7 @@ import {
    Controller,
    Get,
    Param,
+   Patch,
    Post,
    Put,
    Query,
@@ -17,48 +18,60 @@ import { ChangeUsernameDto } from 'src/users/dto/change-username.dto';
 import { UsersRepository } from 'src/users/repository/users.repository';
 import { AdminsService } from './admins.service';
 import { GetUsersDto } from './dto/get-users.dto';
+import { BotsRepository } from 'src/bots/repository/bots.repository';
+import { ChangeBotDto } from './dto/change-bot.dto';
 
 @Controller('admins')
 export class AdminsController {
    constructor(
       private usersRepository: UsersRepository,
-      private adminsService: AdminsService
+      private adminsService: AdminsService,
+      private botsRepository: BotsRepository
    ) {}
 
    @Get('/get-users')
    @Roles('ADMIN')
    @UseGuards(RoleGuard)
-   getUsers(
-      @Query() params: GetUsersDto
-      // @Query('username') username?: string,
-      // @Param('email') email?: string,
-      // @Param('limit') limit?: number
-   ) {
+   getUsers(@Query() params: GetUsersDto) {
       return this.usersRepository.getUsers(params);
    }
 
-   @Put('change-username')
+   @Get('/get-users/:id')
+   @Roles('ADMIN')
+   @UseGuards(RoleGuard)
+   getUserById(@Param('id') id: number) {
+      return this.usersRepository.getUser({ where: { id: Number(id) } });
+   }
+
+   @Patch('change-username')
    @Roles('ADMIN')
    @UseGuards(RoleGuard)
    changeUsername(@Body() dto: ChangeUsernameDto) {
       return this.usersRepository.changeUsername(dto);
    }
 
-   @Put('change-role')
+   @Patch('/change-bot')
+   @Roles('ADMIN')
+   @UseGuards(RoleGuard)
+   changeBot(@Body() dto: ChangeBotDto) {
+      return this.adminsService.changeBot(dto);
+   }
+
+   @Patch('change-role')
    @Roles('ADMIN')
    @UseGuards(RoleGuard)
    changeRole(@Body() dto: ChangeRoleDto) {
       return this.usersRepository.changeRole(dto);
    }
 
-   @Put('give-balance')
+   @Patch('give-balance')
    @Roles('ADMIN')
    @UseGuards(RoleGuard)
    giveBalance(@Body() dto: BalanceDifferenceDto) {
       return this.usersRepository.giveBalance(dto);
    }
 
-   @Put('take-balance')
+   @Patch('take-balance')
    @Roles('ADMIN')
    @UseGuards(RoleGuard)
    takeBalance(@Body() dto: BalanceDifferenceDto) {

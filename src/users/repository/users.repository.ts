@@ -31,24 +31,39 @@ export class UsersRepository {
    }
 
    async getUser(filter: {
-      where: {
-         id?: number;
-         username?: string;
-         email?: string;
-      };
+      where: { id?: number; username?: string; email?: string };
    }) {
-      return this.prisma.user.findFirst(filter);
+      return this.prisma.user.findFirst({
+         where: { ...filter.where },
+         include: {
+            bots: true,
+            partner: {
+               include: {
+                  links: true,
+                  promocodes: {
+                     include: {
+                        activations: true,
+                     },
+                  },
+               },
+            },
+            payments: true,
+            promocodeActivations: true,
+         },
+      });
    }
 
    // ADMIN FUNCTIONS >>>><<<<
 
    async changeUsername(dto: ChangeUsernameDto) {
-      return await this.prisma.user.update({
+      const user = await this.prisma.user.update({
          where: { id: dto.id },
          data: {
             username: dto.username,
          },
       });
+
+      return user.username;
    }
 
    async changeRole(dto: ChangeRoleDto) {
@@ -63,22 +78,26 @@ export class UsersRepository {
    async giveBalance(dto: BalanceDifferenceDto) {
       const user = await this.getUser({ where: { id: Number(dto.id) } });
 
-      return await this.prisma.user.update({
+      const resUser = await this.prisma.user.update({
          where: { id: dto.id },
          data: {
             balance: user.balance + dto.balanceDifference,
          },
       });
+
+      return resUser.balance;
    }
 
    async takeBalance(dto: BalanceDifferenceDto) {
       const user = await this.getUser({ where: { id: Number(dto.id) } });
 
-      return await this.prisma.user.update({
+      const resUser = await this.prisma.user.update({
          where: { id: dto.id },
          data: {
             balance: user.balance - dto.balanceDifference,
          },
       });
+
+      return resUser.balance;
    }
 }

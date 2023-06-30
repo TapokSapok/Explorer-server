@@ -51,12 +51,16 @@ export class BotsService {
          endDate: String(botEndDate),
       });
 
-      const changedUser = await this.usersRepository.takeBalance({
+      await this.usersRepository.takeBalance({
          id: user.id,
          balanceDifference: botPrice,
       });
 
-      return await this.authService.generateToken(changedUser);
+      const resultedUser = await this.usersRepository.getUser({
+         where: { id: user.id },
+      });
+
+      return await this.authService.generateToken(resultedUser);
    }
 
    async myBots(userId: number) {
@@ -145,12 +149,16 @@ export class BotsService {
          },
       });
 
-      const changedUser = await this.usersRepository.takeBalance({
+      await this.usersRepository.takeBalance({
          id: user.id,
          balanceDifference: resultPrice,
       });
 
-      return await this.authService.generateToken(changedUser);
+      const resultedUser = await this.usersRepository.getUser({
+         where: { id: user.id },
+      });
+
+      return await this.authService.generateToken(resultedUser);
    }
 
    async getOne(botId: number, reqUser: User) {
