@@ -3,6 +3,7 @@ import { UsersRepository } from 'src/users/repository/users.repository';
 import { CheckPromocodeDto } from './dto/check-promocode.dto';
 import { CreateLinkDto } from './dto/create-link.dto';
 import { CreatePartnerDto } from './dto/create-partner.dto';
+import { DeletePartnerDto } from './dto/delete-partner.dto';
 import { PartnersPromocodesRepository } from './repository/partners-promocodes.repository';
 import { PartnersRepository } from './repository/partners.repository';
 import { PromocodesActivationsRepository } from './repository/promocodes-activations.repository';
@@ -31,6 +32,16 @@ export class PartnersService {
       }
 
       return await this.partnersRepository.getOne(dto.userId);
+   }
+
+   async deletePartner(dto: DeletePartnerDto) {
+      const partner = await this.partnersRepository.getOne(dto.userId);
+
+      if (!partner) {
+         throw new HttpException('Такого партнера нету', HttpStatus.NOT_FOUND);
+      }
+
+      return await this.partnersRepository.remove(partner.id);
    }
 
    async getStatistics(userId: number) {

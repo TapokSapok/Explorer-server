@@ -20,6 +20,7 @@ import { PartnersPromocodesRepository } from './repository/partners-promocodes.r
 import { UserRequestDto } from 'src/users/dto/user-request.dto';
 import { RemoveLinkDto } from './dto/remove-link.dto';
 import { CheckPromocodeDto } from './dto/check-promocode.dto';
+import { DeletePartnerDto } from './dto/delete-partner.dto';
 
 @Controller('partners')
 export class PartnersController {
@@ -37,6 +38,13 @@ export class PartnersController {
       return this.partnersService.createPartner(dto);
    }
 
+   @Delete()
+   @Roles('ADMIN')
+   @UseGuards(RoleGuard)
+   deletePartner(@Body() dto: DeletePartnerDto) {
+      return this.partnersService.deletePartner(dto);
+   }
+
    @Post('/links')
    @UseGuards(JwtAuthGuard)
    createLink(@Body() dto: CreateLinkDto) {
@@ -45,8 +53,8 @@ export class PartnersController {
 
    @Delete('/links')
    @UseGuards(JwtAuthGuard)
-   deleteLink(@Body() dto: RemoveLinkDto) {
-      return this.linksRepository.remove(dto.id);
+   deleteLink(@Body() dto: RemoveLinkDto[]) {
+      return this.linksRepository.remove(dto);
    }
 
    @Post('/promocodes')

@@ -20,13 +20,14 @@ import { AdminsService } from './admins.service';
 import { GetUsersDto } from './dto/get-users.dto';
 import { BotsRepository } from 'src/bots/repository/bots.repository';
 import { ChangeBotDto } from './dto/change-bot.dto';
+import { PartnersService } from 'src/partners/partners.service';
 
 @Controller('admins')
 export class AdminsController {
    constructor(
       private usersRepository: UsersRepository,
-      private adminsService: AdminsService,
-      private botsRepository: BotsRepository
+      private botsRepository: BotsRepository,
+      private adminsService: AdminsService
    ) {}
 
    @Get('/get-users')

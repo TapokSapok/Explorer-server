@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateLinkDto } from '../dto/create-link.dto';
+import { RemoveLinkDto } from '../dto/remove-link.dto';
 
 @Injectable()
 export class PartnersLinksRepository {
@@ -12,9 +13,13 @@ export class PartnersLinksRepository {
       });
    }
 
-   async remove(id: number) {
-      return await this.prisma.partnerLink.delete({
-         where: { id },
+   async remove(dto: RemoveLinkDto[]) {
+      return await this.prisma.partnerLink.deleteMany({
+         where: {
+            id: {
+               in: dto.map((dto) => dto.id),
+            },
+         },
       });
    }
 

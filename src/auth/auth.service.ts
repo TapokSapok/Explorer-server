@@ -58,9 +58,15 @@ export class AuthService {
       return this.generateToken(user);
    }
 
-   async getMe(dto: UpdateUserDto) {
+   async update(id: number) {
+      await new Promise((resolve) =>
+         setTimeout(() => {
+            resolve(1);
+         }, 500)
+      );
+
       const user = await this.usersRepository.getUser({
-         where: { email: dto.email, username: dto.username },
+         where: { id },
       });
       if (!user) {
          throw new BadRequestException('Пользователя не существует');

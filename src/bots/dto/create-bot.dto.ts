@@ -4,4 +4,5 @@ export class CreateBotDto {
    readonly username: string;
    readonly server: string;
    readonly endDate: string;
+   readonly proxyId: number;
 }

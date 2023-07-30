@@ -6,6 +6,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { UsersRepository } from 'src/users/repository/users.repository';
 import { PartnersRepository } from 'src/partners/repository/partners.repository';
 import { BotsRepository } from 'src/bots/repository/bots.repository';
+import { PartnersService } from 'src/partners/partners.service';
+import { PartnersPromocodesRepository } from 'src/partners/repository/partners-promocodes.repository';
+import { PromocodesActivationsRepository } from 'src/partners/repository/promocodes-activations.repository';
 
 @Module({
    imports: [

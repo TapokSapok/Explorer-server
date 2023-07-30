@@ -7,7 +7,7 @@ export class BotsRepository {
    constructor(private prisma: PrismaService) {}
 
    async createBot(dto: CreateBotDto) {
-      return await this.prisma.bot.create({ data: dto });
+      return await this.prisma.bot.create({ data: { ...dto } });
    }
 
    async getUserBots(userId: number) {
@@ -38,6 +38,20 @@ export class BotsRepository {
          id?: number;
       };
    }) {
-      return this.prisma.bot.findFirst(filter);
+      return this.prisma.bot.findFirst({
+         where: filter.where,
+         include: {
+            whitelist: true,
+            macroses: { include: { blocks: true } },
+            timers: true,
+         },
+      });
+   }
+
+   async setActiveMacros(botId: number, macrosId: number) {
+      return await this.prisma.bot.update({
+         where: { id: botId },
+         data: { activeMacrosId: macrosId },
+      });
    }
 }

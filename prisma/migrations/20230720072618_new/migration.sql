@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Timer" ALTER COLUMN "message" SET DATA TYPE TEXT;

@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Timer" ALTER COLUMN "interval" DROP NOT NULL,
+ALTER COLUMN "interval" SET DEFAULT 0,
+ALTER COLUMN "message" DROP NOT NULL,
+ALTER COLUMN "message" SET DEFAULT '';
